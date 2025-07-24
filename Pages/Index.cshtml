@@ -1,10 +1,81 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Página Inicial";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="welcome-container">
+    <div class="welcome-header text-center py-5">
+        <div class="container">
+            <h1 class="display-4 fw-bold text-primary mb-3">
+                <i class="fas fa-book-open me-2"></i> Bem-vindo ao Sistema de Biblioteca
+            </h1>
+            <p class="lead text-muted mb-5">Gerencie seu acervo bibliográfico de forma eficiente</p>
+        </div>
+    </div>
+
+    <div class="container features-container py-5">
+        <div class="row g-4">
+            <!-- Card Catálogo -->
+            <div class="col-md-4">
+                <div class="card feature-card h-100 border-0 shadow-lg">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-4">
+                            <i class="fas fa-book fa-4x text-primary"></i>
+                        </div>
+                        <h3 class="card-title mb-3">Catálogo</h3>
+                        <p class="card-text text-muted mb-4">Gerencie todos os livros disponíveis</p>
+                        <a asp-page="/Livros/Index" class="btn btn-primary btn-lg px-4">
+                            Acessar <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Usuários -->
+            <div class="col-md-4">
+                <div class="card feature-card h-100 border-0 shadow-lg">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-4">
+                            <i class="fas fa-users fa-4x text-success"></i>
+                        </div>
+                        <h3 class="card-title mb-3">Usuários</h3>
+                        <p class="card-text text-muted mb-4">Administre os usuários do sistema</p>
+                        <a asp-page="/Usuarios/Index" class="btn btn-success btn-lg px-4">
+                            Gerenciar <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Locações -->
+            <div class="col-md-4">
+                <div class="card feature-card h-100 border-0 shadow-lg">
+                    <div class="card-body text-center p-4">
+                        <div class="feature-icon mb-4">
+                            <i class="fas fa-exchange-alt fa-4x text-warning"></i>
+                        </div>
+                        <h3 class="card-title mb-3">Locações</h3>
+                        <p class="card-text text-muted mb-4">Controle de empréstimos e devoluções</p>
+                        <a asp-page="/Locacoes/Index" class="btn btn-warning btn-lg px-4">
+                            Verificar <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.feature-card').each(function(i) {
+                $(this).delay(i * 200).animate({
+                    opacity: 1,
+                    top: 0
+                }, 400);
+            });
+        });
+    </script>
+}
