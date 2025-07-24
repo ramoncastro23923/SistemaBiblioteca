@@ -1,0 +1,26 @@
+## Arquivos do Visual Studio
+.vs/
+*.user
+*.suo
+*.userprefs
+
+## Build results
+bin/
+obj/
+Debug/
+Release/
+
+## Arquivos de usuário
+*.csproj.user
+
+## Dependências
+packages/
+node_modules/
+
+## Configurações locais
+appsettings.Development.json
+
+## Outros
+*.swp
+*.cache
+*.DS_Store

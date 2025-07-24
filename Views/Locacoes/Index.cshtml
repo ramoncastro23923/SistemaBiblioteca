@@ -1,0 +1,93 @@
+﻿@model IEnumerable<SistemaBiblioteca.Models.Locacao>
+
+@{
+    ViewData["Title"] = "Registro de Locações";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-4">Registro de Locações</h1>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="fas fa-plus"></i> Nova Locação
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Histórico de Locações</h5>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Livro</th>
+                            <th>Usuário</th>
+                            <th>Retirada</th>
+                            <th>Devolução Prevista</th>
+                            <th>Status</th>
+                            <th class="text-end">Multa (R$)</th>
+                            <th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="@(item.Status == "Atrasado" ? "table-warning" : "")">
+                                <td>@Html.DisplayFor(modelItem => item.Livro.Titulo)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Usuario.Nome)</td>
+                                <td>@item.DataRetirada.ToString("dd/MM/yyyy")</td>
+                                <td>@item.DataDevolucaoPrevista.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <span class="badge @GetStatusBadgeClass(item.Status)">
+                                        @item.Status
+                                    </span>
+                                </td>
+                                <td class="text-end">@(item.Multa > 0 ? item.Multa.ToString("N2") : "-")</td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info" title="Detalhes">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        @if (item.Status != "Devolvido")
+                                        {
+                                            <a asp-action="Devolver" asp-route-id="@item.Id" class="btn btn-outline-success" title="Registrar Devolução">
+                                                <i class="fas fa-book"></i>
+                                            </a>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Pendente" => "bg-info",
+            "Devolvido" => "bg-success",
+            "Atrasado" => "bg-danger",
+            _ => "bg-secondary"
+        };
+    }
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        .badge {
+            font-size: 0.85em;
+            min-width: 80px;
+        }
+    </style>
+}

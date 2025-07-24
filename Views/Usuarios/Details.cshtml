@@ -1,0 +1,57 @@
+﻿@model SistemaBiblioteca.Models.Usuario
+@using SistemaBiblioteca.Models
+
+@{
+    ViewData["Title"] = "Detalhes do Usuário";
+}
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Detalhes do Usuário</h4>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h5 class="border-bottom pb-2">Informações Pessoais</h5>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <dl>
+                        <dt>@Html.DisplayNameFor(model => model.Nome)</dt>
+                        <dd>@Html.DisplayFor(model => model.Nome)</dd>
+
+                        <dt>@Html.DisplayNameFor(model => model.Email)</dt>
+                        <dd>@Html.DisplayFor(model => model.Email)</dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <dl>
+                        <dt>@Html.DisplayNameFor(model => model.PhoneNumber)</dt>
+                        <dd>@(string.IsNullOrEmpty(Model.PhoneNumber) ? "Não informado" : Model.PhoneNumber)</dd>
+
+                        <dt>Tipo de Perfil</dt>
+                        <dd>@Model.Perfil</dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer">
+            <div class="d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar à lista
+                </a>
+                <div>
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary me-2">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i> Excluir
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

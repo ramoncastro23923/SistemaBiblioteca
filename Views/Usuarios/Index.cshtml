@@ -1,0 +1,89 @@
+﻿@using SistemaBiblioteca.Models
+@model IEnumerable<Usuario>
+
+@{
+    ViewData["Title"] = "Gerenciamento de Usuários";
+}
+
+<div class="container mt-4">
+    <!-- Cabeçalho e search -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-4">Usuários do Sistema</h1>
+        <a asp-action="Register" class="btn btn-success">
+            <i class="fas fa-user-plus"></i> Novo Usuário
+        </a>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="mb-0">Lista de Usuários</h5>
+                </div>
+                <div class="col-md-6">
+                    <form asp-action="Index" method="get" class="float-end">
+                        <div class="input-group">
+                            <input type="text" name="searchString" class="form-control" placeholder="Pesquisar usuários...">
+                            <button type="submit" class="btn btn-outline-light">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Telefone</th>
+                            <th>Perfil</th>
+                            <th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => item.Nome)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                                <td>@(string.IsNullOrEmpty(item.PhoneNumber) ? "Não informado" : item.PhoneNumber)</td>
+                                <td>
+                                    <span class="badge @(item.Perfil == TipoPerfil.Administrador ? "bg-primary" : "bg-secondary")">
+                                        @item.Perfil
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info" title="Detalhes">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger" title="Excluir">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        .badge {
+            font-size: 0.85em;
+            min-width: 100px;
+        }
+    </style>
+}

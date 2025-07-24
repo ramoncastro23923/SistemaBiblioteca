@@ -1,0 +1,85 @@
+﻿@model SistemaBiblioteca.Models.Locacao
+
+@{
+    ViewData["Title"] = "Nova Locação";
+}
+
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0"><i class="fas fa-book-open me-2"></i>Registrar Nova Locação</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="Create" class="needs-validation" novalidate>
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Livro</label>
+                        <select asp-for="LivroId" class="form-select" asp-items="ViewBag.LivroId" required>
+                            <option value="">Selecione um livro...</option>
+                        </select>
+                        <span asp-validation-for="LivroId" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Usuário</label>
+                        <select asp-for="UsuarioId" class="form-select" asp-items="ViewBag.UsuarioId" required>
+                            <option value="">Selecione um usuário...</option>
+                        </select>
+                        <span asp-validation-for="UsuarioId" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="DataRetirada" class="form-label"></label>
+                        <input asp-for="DataRetirada" type="date" class="form-control" required />
+                        <span asp-validation-for="DataRetirada" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label asp-for="DataDevolucaoPrevista" class="form-label"></label>
+                        <input asp-for="DataDevolucaoPrevista" type="date" class="form-control" required />
+                        <span asp-validation-for="DataDevolucaoPrevista" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label">Duração</label>
+                        <input type="text" class="form-control" value="14 dias" readonly />
+                    </div>
+                </div>
+
+                <div class="alert alert-info mt-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    O status será definido automaticamente como "Pendente" e a multa será calculada apenas em caso de atraso na devolução.
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-save me-1"></i> Registrar Locação
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
+    <script>
+        // Definir data de devolução prevista automaticamente
+        document.getElementById('DataRetirada').addEventListener('change', function() {
+            const retirada = new Date(this.value);
+            if (!isNaN(retirada.getTime())) {
+                const devolucao = new Date(retirada);
+                devolucao.setDate(retirada.getDate() + 14);
+                document.getElementById('DataDevolucaoPrevista').valueAsDate = devolucao;
+            }
+        });
+    </script>
+}

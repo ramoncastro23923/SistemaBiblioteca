@@ -1,0 +1,80 @@
+﻿@model SistemaBiblioteca.Models.Livro
+
+@{
+    ViewData["Title"] = ViewBag.Title ?? (Model.Id == 0 ? "Adicionar Novo Livro" : "Editar Livro");
+    Layout = "_LayoutLivros";
+}
+
+<div class="container">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">
+                <i class="fas @(Model.Id == 0 ? "fa-book-medical" : "fa-edit") me-2"></i>
+                @ViewData["Title"]
+            </h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="@(Model.Id == 0 ? "Create" : "Edit")">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                @if (Model.Id != 0)
+                {
+                    <input type="hidden" asp-for="Id" />
+                }
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="Titulo" class="form-label"></label>
+                        <input asp-for="Titulo" class="form-control" placeholder="Digite o título do livro" />
+                        <span asp-validation-for="Titulo" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Autor" class="form-label"></label>
+                        <input asp-for="Autor" class="form-control" placeholder="Nome do autor" />
+                        <span asp-validation-for="Autor" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label asp-for="Editora" class="form-label"></label>
+                        <input asp-for="Editora" class="form-control" placeholder="Nome da editora" />
+                        <span asp-validation-for="Editora" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="AnoPublicacao" class="form-label"></label>
+                        <input asp-for="AnoPublicacao" class="form-control" placeholder="Ano de publicação" />
+                        <span asp-validation-for="AnoPublicacao" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label asp-for="QuantidadeDisponivel" class="form-label"></label>
+                        <input asp-for="QuantidadeDisponivel" class="form-control" />
+                        <span asp-validation-for="QuantidadeDisponivel" class="text-danger"></span>
+                    </div>
+
+                    <div class="col-md-12">
+                        <label asp-for="ISBN" class="form-label"></label>
+                        <input asp-for="ISBN" class="form-control" placeholder="ISBN (10 ou 13 dígitos)" />
+                        <span asp-validation-for="ISBN" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-save me-1"></i> Salvar
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Voltar
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

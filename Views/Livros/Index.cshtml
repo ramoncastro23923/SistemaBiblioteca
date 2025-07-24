@@ -1,0 +1,113 @@
+﻿@model IEnumerable<SistemaBiblioteca.Models.Livro>
+
+@{
+    ViewData["Title"] = "Catálogo de Livros";
+    Layout = "_LayoutLivros";
+}
+
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="display-5 fw-bold text-primary">
+            <i class="fas fa-book me-2"></i> Catálogo de Livros
+        </h1>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="fas fa-plus me-1"></i> Novo Livro
+        </a>
+    </div>
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="mb-0">
+                        <i class="fas fa-list me-1"></i> Lista de Livros
+                    </h5>
+                </div>
+                <div class="col-md-6">
+                    <form asp-action="Index" method="get" class="d-flex">
+                        <div class="input-group">
+                            <input type="text" name="searchString" class="form-control"
+                                   placeholder="Pesquisar por título ou autor..."
+                                   value="@ViewData["CurrentFilter"]">
+                            <button type="submit" class="btn btn-outline-primary">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Título</th>
+                            <th>Autor</th>
+                            <th>Editora</th>
+                            <th class="text-center">Ano</th>
+                            <th>ISBN</th>
+                            <th class="text-center">Disponível</th>
+                            <th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@Html.DisplayFor(modelItem => item.Titulo)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Autor)</td>
+                                <td>@Html.DisplayFor(modelItem => item.Editora)</td>
+                                <td class="text-center">@Html.DisplayFor(modelItem => item.AnoPublicacao)</td>
+                                <td>@Html.DisplayFor(modelItem => item.ISBN)</td>
+                                <td class="text-center">
+                                    <span class="badge @(item.QuantidadeDisponivel > 0 ? "bg-success" : "bg-danger")">
+                                        @Html.DisplayFor(modelItem => item.QuantidadeDisponivel)
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-primary" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info" title="Detalhes">
+                                            <i class="fas fa-info-circle"></i>
+                                        </a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger" title="Excluir">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+section Styles {
+<style>
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .badge {
+        font-size: 0.9em;
+        padding: 0.35em 0.65em;
+        min-width: 50px;
+    }
+
+    .card-header {
+        padding: 0.75rem 1.25rem;
+    }
+</style>
+}
+
+@section Scripts {
+    <script>
+        // Adicione scripts específicos se necessário
+    </script>
+}
