@@ -1,15 +1,27 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
-namespace SistemaBiblioteca.Models.ViewModels
+namespace SistemaBiblioteca.ViewModels
 {
     public class LocacaoViewModel
     {
-        [Required(ErrorMessage = "Selecione um livro")]
-        [Display(Name = "Livro")]
         public int LivroId { get; set; }
+        public string LivroTitulo { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Selecione um usuário")]
+        [Required]
         [Display(Name = "Usuário")]
-        public string UsuarioId { get; set; }
+        public string UsuarioId { get; set; } = string.Empty;
+
+        [DataType(DataType.Date)]
+        [Display(Name = "Data de Retirada")]
+        public DateTime DataRetirada { get; set; } = DateTime.Today;
+
+        [DataType(DataType.Date)]
+        [Display(Name = "Data Prevista Devolução")]
+        public DateTime DataDevolucaoPrevista { get; set; } = DateTime.Today.AddDays(14);
+
+        [Display(Name = "Observações")]
+        [StringLength(500)]
+        public string? Observacoes { get; set; }
     }
 }

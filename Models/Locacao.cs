@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using SistemaBiblioteca.Models.Enums;
 
 namespace SistemaBiblioteca.Models
 {
@@ -11,39 +10,64 @@ namespace SistemaBiblioteca.Models
         public int Id { get; set; }
 
         [Required(ErrorMessage = "O livro é obrigatório")]
-        [Display(Name = "Livro")]
+        [ForeignKey("Livro")]
         public int LivroId { get; set; }
 
-        [ForeignKey("LivroId")]
-        public virtual Livro? Livro { get; set; }
+        [Display(Name = "Livro")]
+        public virtual Livro Livro { get; set; }
 
         [Required(ErrorMessage = "O usuário é obrigatório")]
+        [ForeignKey("Usuario")]
+        public string UsuarioId { get; set; }
+
         [Display(Name = "Usuário")]
-        public string UsuarioId { get; set; } = string.Empty;
+        public virtual Usuario Usuario { get; set; }
 
-        [ForeignKey("UsuarioId")]
-        public virtual Usuario? Usuario { get; set; }
-
-        [Required]
+        [Required(ErrorMessage = "A data de retirada é obrigatória")]
         [DataType(DataType.DateTime)]
         [Display(Name = "Data de Retirada")]
         public DateTime DataRetirada { get; set; } = DateTime.Now;
 
-        [Required]
+        [Required(ErrorMessage = "A data de devolução prevista é obrigatória")]
         [DataType(DataType.DateTime)]
         [Display(Name = "Devolução Prevista")]
         public DateTime DataDevolucaoPrevista { get; set; } = DateTime.Now.AddDays(14);
 
         [DataType(DataType.DateTime)]
-        [Display(Name = "Devolução Real")]
+        [Display(Name = "Data de Devolução")]
         public DateTime? DataDevolucaoReal { get; set; }
 
-        [Column(TypeName = "decimal(18,2)")]
-        [Display(Name = "Multa (R$)")]
-        public decimal Multa { get; set; }
+        [DataType(DataType.Currency)]
+        [Display(Name = "Multa")]
+        [Column(TypeName = "decimal(10,2)")]
+        [Range(0, 1000, ErrorMessage = "O valor da multa deve estar entre 0 e 1000")]
+        public decimal Multa { get; set; } = 0m;
 
-        [StringLength(20)]
+        [Required]
         [Display(Name = "Status")]
-        public string Status { get; set; } = StatusLocacao.Pendente.ToString();
+        [StringLength(20)]
+        public string Status { get; set; } = "Pendente";
+
+        [NotMapped]
+        [Display(Name = "Dias de Atraso")]
+        public int? DiasAtraso
+        {
+            get
+            {
+                if (DataDevolucaoReal == null && DateTime.Now > DataDevolucaoPrevista)
+                {
+                    return (DateTime.Now - DataDevolucaoPrevista).Days;
+                }
+                else if (DataDevolucaoReal > DataDevolucaoPrevista)
+                {
+                    return (DataDevolucaoReal.Value - DataDevolucaoPrevista).Days;
+                }
+                return null;
+            }
+        }
+
+        [NotMapped]
+        [Display(Name = "Em Atraso?")]
+        public bool EmAtraso => DiasAtraso.HasValue && DiasAtraso > 0;
     }
 }
