@@ -3,6 +3,21 @@
 }
 
 <div class="container">
+    <!-- Cabeçalho com botão de Login -->
+    <div class="d-flex justify-content-end py-3">
+        <div>
+            <a asp-controller="Account" asp-action="Login" asp-route-ReturnUrl="/usuarios"
+               class="btn btn-primary me-2">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <a asp-controller="Account" asp-action="Register"
+               class="btn btn-outline-secondary">
+                <i class="fas fa-user-plus"></i> Registrar
+            </a>
+        </div>
+    </div>
+
+    <!-- Conteúdo Principal -->
     <div class="text-center py-5">
         <h1 class="display-4 mb-4">
             <i class="fas fa-book-open text-primary"></i> Bem-vindo ao Sistema de Biblioteca
@@ -10,6 +25,7 @@
         <p class="lead text-muted mb-5">Gerencie seu acervo bibliográfico de forma eficiente</p>
 
         <div class="row g-4">
+            <!-- Card Catálogo -->
             <div class="col-md-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
@@ -23,6 +39,7 @@
                 </div>
             </div>
 
+            <!-- Card Usuários -->
             <div class="col-md-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
@@ -36,6 +53,7 @@
                 </div>
             </div>
 
+            <!-- Card Locações -->
             <div class="col-md-4">
                 <div class="card h-100 border-0 shadow-sm">
                     <div class="card-body">
@@ -51,3 +69,27 @@
         </div>
     </div>
 </div>
+
+<!-- Seção de Scripts -->
+@section Scripts {
+    @if (TempData["MensagemSucesso"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Sucesso!',
+                text: '@TempData["MensagemSucesso"]'
+            });
+        </script>
+    }
+    @if (TempData["MensagemErro"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro!',
+                text: '@TempData["MensagemErro"]'
+            });
+        </script>
+    }
+}

@@ -4,29 +4,32 @@ namespace SistemaBiblioteca.Models.Account
 {
     public class RegisterViewModel
     {
-        [Required(ErrorMessage = "O nome completo é obrigatório")]
-        [StringLength(100, MinimumLength = 3, ErrorMessage = "O nome deve ter entre 3 e 100 caracteres")]
+        [Required]
         [Display(Name = "Nome Completo")]
-        public string Nome { get; set; } = string.Empty;
+        public string Nome { get; set; }
 
-        [Required(ErrorMessage = "O email é obrigatório")]
-        [EmailAddress(ErrorMessage = "Email inválido")]
+        [Required]
+        [EmailAddress]
         [Display(Name = "Email")]
-        public string Email { get; set; } = string.Empty;
+        public string Email { get; set; }
 
-        [Phone(ErrorMessage = "Número de telefone inválido")]
+        [Required]
+        [Phone]
         [Display(Name = "Telefone")]
-        public string Telefone { get; set; } = string.Empty;
+        public string Telefone { get; set; }
 
-        [Required(ErrorMessage = "A senha é obrigatória")]
+        [Required]
+        [StringLength(100, ErrorMessage = "A senha deve ter no mínimo {2} caracteres.", MinimumLength = 8)]
         [DataType(DataType.Password)]
-        [StringLength(100, MinimumLength = 8, ErrorMessage = "A senha deve ter no mínimo 8 caracteres")]
         [Display(Name = "Senha")]
-        public string Password { get; set; } = string.Empty;
+        public string Password { get; set; }
 
         [DataType(DataType.Password)]
         [Display(Name = "Confirmar Senha")]
-        [Compare("Password", ErrorMessage = "As senhas não coincidem")]
-        public string ConfirmPassword { get; set; } = string.Empty;
+        [Compare("Password", ErrorMessage = "As senhas não coincidem.")]
+        public string ConfirmPassword { get; set; }
+
+        [Range(typeof(bool), "true", "true", ErrorMessage = "Você deve aceitar os termos.")]
+        public bool AcceptTerms { get; set; }
     }
 }

@@ -2,47 +2,89 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SistemaBiblioteca.Data;
 using SistemaBiblioteca.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Configuração do DbContext
+// DbContext Configuration
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 builder.Services.AddDbContext<BibliotecaContext>(options =>
     options.UseSqlServer(connectionString));
 
-// Configuração do Identity com políticas personalizadas
+// Identity Configuration
 builder.Services.AddIdentity<Usuario, IdentityRole>(options =>
 {
-    options.SignIn.RequireConfirmedAccount = false;
+    options.SignIn.RequireConfirmedAccount = true;
     options.Password.RequireDigit = true;
     options.Password.RequiredLength = 8;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = true;
     options.Lockout.MaxFailedAccessAttempts = 5;
     options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.User.RequireUniqueEmail = true;
 })
 .AddEntityFrameworkStores<BibliotecaContext>()
 .AddDefaultTokenProviders();
 
-// Configuração de autorização
+// JWT Authentication - Updated to match your appsettings.json
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+if (string.IsNullOrEmpty(jwtSettings["Secret"]))
+{
+    throw new ApplicationException("JWT Secret is missing in configuration.");
+}
+
+var key = Encoding.ASCII.GetBytes(jwtSettings["Secret"]!);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidateAudience = true,
+        ValidAudience = jwtSettings["Audience"],
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+// Authorization Policies
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("RequireAdmin", policy =>
         policy.RequireRole(TipoPerfil.Administrador.ToString()));
     options.AddPolicy("RequireBibliotecario", policy =>
         policy.RequireRole(TipoPerfil.Bibliotecario.ToString()));
+    options.AddPolicy("RequireUser", policy =>
+        policy.RequireRole(TipoPerfil.UsuarioPadrao.ToString())); // Fixed from UsuarioPadrao to Usuario
 });
 
-// Serviços adicionais
-builder.Services.AddScoped<UserManager<Usuario>>();
-builder.Services.AddScoped<SignInManager<Usuario>>();
-builder.Services.AddScoped<RoleManager<IdentityRole>>();
+// Additional Services
 builder.Services.AddControllersWithViews();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login";
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+});
+
 builder.Services.AddRazorPages();
 
 var app = builder.Build();
 
-// Pipeline de requisições
+// Pipeline Configuration
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -56,7 +98,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Seed inicial de roles e admin
+// Seed Initial Data
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
@@ -65,7 +107,7 @@ using (var scope = app.Services.CreateScope())
         var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = services.GetRequiredService<UserManager<Usuario>>();
 
-        // Cria roles
+        // Create Roles
         foreach (var role in Enum.GetNames(typeof(TipoPerfil)))
         {
             if (!await roleManager.RoleExistsAsync(role))
@@ -74,7 +116,7 @@ using (var scope = app.Services.CreateScope())
             }
         }
 
-        // Cria admin padrão
+        // Create Admin User
         const string adminEmail = "admin@biblioteca.com";
         if (await userManager.FindByEmailAsync(adminEmail) == null)
         {
@@ -84,7 +126,8 @@ using (var scope = app.Services.CreateScope())
                 Email = adminEmail,
                 Nome = "Administrador",
                 PhoneNumber = "11999999999",
-                Perfil = TipoPerfil.Administrador
+                Perfil = TipoPerfil.Administrador,
+                EmailConfirmed = true
             };
 
             var result = await userManager.CreateAsync(admin, "Admin@123");
@@ -97,11 +140,10 @@ using (var scope = app.Services.CreateScope())
     catch (Exception ex)
     {
         var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "Erro ao inicializar roles e usuário admin");
+        logger.LogError(ex, "Error seeding database");
     }
 }
 
-// Rotas
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");

@@ -5,35 +5,37 @@ using SistemaBiblioteca.Models.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-[Authorize]
 public class AccountController : Controller
 {
     private readonly SignInManager<Usuario> _signInManager;
     private readonly UserManager<Usuario> _userManager;
     private readonly ILogger<AccountController> _logger;
-    private readonly RoleManager<IdentityRole> _roleManager;
 
     public AccountController(
         SignInManager<Usuario> signInManager,
         UserManager<Usuario> userManager,
-        ILogger<AccountController> logger,
-        RoleManager<IdentityRole> roleManager)
+        ILogger<AccountController> logger)
     {
         _signInManager = signInManager;
         _userManager = userManager;
         _logger = logger;
-        _roleManager = roleManager;
     }
 
-    // Login
+    // GET: /Account/Login
     [HttpGet]
     [AllowAnonymous]
     public IActionResult Login(string? returnUrl = null)
     {
+        if (User.Identity?.IsAuthenticated == true)
+        {
+            return RedirectToAction("Index", "Home");
+        }
+
         ViewData["ReturnUrl"] = returnUrl;
         return View();
     }
 
+    // POST: /Account/Login
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
@@ -41,30 +43,34 @@ public class AccountController : Controller
     {
         ViewData["ReturnUrl"] = returnUrl;
 
-        if (!ModelState.IsValid) return View(model);
-
-        var result = await _signInManager.PasswordSignInAsync(
-            model.Email,
-            model.Password,
-            model.RememberMe,
-            lockoutOnFailure: true); // Ativa bloqueio após tentativas falhas
-
-        if (result.Succeeded)
+        if (ModelState.IsValid)
         {
-            _logger.LogInformation("Usuário logado: {Email}", model.Email);
-            return RedirectToLocal(returnUrl);
-        }
-        if (result.IsLockedOut)
-        {
-            _logger.LogWarning("Conta bloqueada: {Email}", model.Email);
-            return View("Lockout");
-        }
+            var result = await _signInManager.PasswordSignInAsync(
+                model.Email,
+                model.Password,
+                model.RememberMe,
+                lockoutOnFailure: false);
 
-        ModelState.AddModelError(string.Empty, "Credenciais inválidas");
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("Usuário logado.");
+                return RedirectToLocal(returnUrl);
+            }
+            if (result.IsLockedOut)
+            {
+                _logger.LogWarning("Conta bloqueada.");
+                return View("Lockout");
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Tentativa de login inválida.");
+                return View(model);
+            }
+        }
         return View(model);
     }
 
-    // Registro
+    // GET: /Account/Register
     [HttpGet]
     [AllowAnonymous]
     public IActionResult Register()
@@ -72,6 +78,7 @@ public class AccountController : Controller
         return View();
     }
 
+    // POST: /Account/Register
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
@@ -94,11 +101,6 @@ public class AccountController : Controller
             {
                 await _userManager.AddToRoleAsync(user, user.Perfil.ToString());
 
-                if (_userManager.Options.SignIn.RequireConfirmedAccount)
-                {
-                    return RedirectToAction("RegisterConfirmation", new { email = model.Email });
-                }
-
                 await _signInManager.SignInAsync(user, isPersistent: false);
                 return RedirectToAction("Index", "Home");
             }
@@ -108,10 +110,11 @@ public class AccountController : Controller
                 ModelState.AddModelError(string.Empty, error.Description);
             }
         }
+
         return View(model);
     }
 
-    // Logout
+    // POST: /Account/Logout
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
@@ -121,12 +124,24 @@ public class AccountController : Controller
         return RedirectToAction("Index", "Home");
     }
 
-    // Acesso Negado
+    // GET: /Account/Manage
     [HttpGet]
-    [AllowAnonymous]
-    public IActionResult AccessDenied()
+    public async Task<IActionResult> Manage()
     {
-        return View();
+        var user = await _userManager.GetUserAsync(User);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        var model = new ManageViewModel
+        {
+            Nome = user.Nome,
+            Email = user.Email,
+            Telefone = user.PhoneNumber
+        };
+
+        return View(model);
     }
 
     // Métodos auxiliares

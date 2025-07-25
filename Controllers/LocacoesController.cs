@@ -35,7 +35,7 @@ public class LocacoesController : Controller
             .Include(l => l.Usuario)
             .AsQueryable();
 
-        if (!string.IsNullOrEmpty(filtroStatus))
+        if (!string.IsNullOrEmpty(filtroStatus) && filtroStatus != "Todos")
         {
             query = query.Where(l => l.Status == filtroStatus);
         }
@@ -56,14 +56,20 @@ public class LocacoesController : Controller
     // GET: Locacoes/Details/5
     public async Task<IActionResult> Details(int? id)
     {
-        if (id == null) return NotFound();
+        if (id == null)
+        {
+            return NotFound();
+        }
 
         var locacao = await _context.Locacoes
             .Include(l => l.Livro)
             .Include(l => l.Usuario)
             .FirstOrDefaultAsync(m => m.Id == id);
 
-        if (locacao == null) return NotFound();
+        if (locacao == null)
+        {
+            return NotFound();
+        }
 
         return View(locacao);
     }
@@ -72,15 +78,7 @@ public class LocacoesController : Controller
     [Authorize(Roles = "Administrador,Bibliotecario")]
     public async Task<IActionResult> Create()
     {
-        var livrosDisponiveis = await _context.Livros
-            .Where(l => l.QuantidadeDisponivel > 0)
-            .ToListAsync();
-
-        var usuarios = await _context.Users.ToListAsync();
-
-        ViewData["LivroId"] = new SelectList(livrosDisponiveis, "Id", "Titulo");
-        ViewData["UsuarioId"] = new SelectList(usuarios, "Id", "NomeCompleto");
-
+        await CarregarSelectLists();
         return View(new LocacaoViewModel());
     }
 
@@ -222,7 +220,9 @@ public class LocacoesController : Controller
             .Where(l => l.QuantidadeDisponivel > 0)
             .ToListAsync();
 
-        var usuarios = await _context.Users.ToListAsync();
+        var usuarios = await _context.Users
+            .Select(u => new { u.Id, NomeCompleto = u.Nome })
+            .ToListAsync();
 
         ViewData["LivroId"] = new SelectList(livrosDisponiveis, "Id", "Titulo");
         ViewData["UsuarioId"] = new SelectList(usuarios, "Id", "NomeCompleto");

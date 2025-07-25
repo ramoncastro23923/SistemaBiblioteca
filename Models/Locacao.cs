@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using SistemaBiblioteca.Models.Enums;
 
 namespace SistemaBiblioteca.Models
 {
@@ -10,16 +11,18 @@ namespace SistemaBiblioteca.Models
         public int Id { get; set; }
 
         [Required(ErrorMessage = "O livro é obrigatório")]
+        [Display(Name = "Livro")]
         public int LivroId { get; set; }
 
         [ForeignKey("LivroId")]
-        public Livro? Livro { get; set; }
+        public virtual Livro? Livro { get; set; }
 
         [Required(ErrorMessage = "O usuário é obrigatório")]
+        [Display(Name = "Usuário")]
         public string UsuarioId { get; set; } = string.Empty;
 
         [ForeignKey("UsuarioId")]
-        public Usuario? Usuario { get; set; }
+        public virtual Usuario? Usuario { get; set; }
 
         [Required]
         [DataType(DataType.DateTime)]
@@ -40,6 +43,7 @@ namespace SistemaBiblioteca.Models
         public decimal Multa { get; set; }
 
         [StringLength(20)]
-        public string Status { get; set; } = "Pendente";
+        [Display(Name = "Status")]
+        public string Status { get; set; } = StatusLocacao.Pendente.ToString();
     }
 }
